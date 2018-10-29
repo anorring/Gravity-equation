@@ -78,11 +78,7 @@ Note that all variables in the above formulation can vary across time.
 
 **The simplistic approach: log-linearization and OLS-estimation**
 
-The standard procedure has long been simply taking natural logs of the equation and estimate the obtained log-linear equations using OLS. 
-
-$ln X_{ijt} = ln G_t + ln S__{ijt} + ln M__{ijt} + ln \phi_{ijt}$
-
-or 
+The standard procedure has long been simply taking natural logs of the equation and estimate the obtained log-linear equations using OLS. Consider the version of the model that includes MRT:
 
 $ln X_{ijt} = a_0 + a_1 ln Y_{it} + a_2 ln Y_{jt} + a_3 ln t_{ijt} + a_4 ln \Pi_{it} + a_5 ln P_{jt} + \varepsilon_{ijt}$
 
