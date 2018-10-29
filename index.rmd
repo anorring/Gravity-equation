@@ -1,0 +1,187 @@
+---
+title: "Notes on gravity equations"
+author: 
+- name: "Anni Norring"
+  affiliation: "anni.norring@helsinki.fi"
+date: "2018"
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    fig_caption: true
+    fig_width: 6
+    fig_height: 4
+    code_folding: hide
+ 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+# Install the needed packages:
+# install.packages("")
+
+# Access the needed libraries:
+library(dplyr)
+```
+
+# 1. For starters
+
+In my doctoral thesis I analyze the cross-border spillovers from nationally implemented macroprudential policy via international lending with the help of a gravity model applied to international banking asset holdings. 
+
+These notes contain information about the gravity equation, it's theoretical foundations, applications and estimation. 
+
+The gravity model has been a workhorse model of international trade analysis for decades. My interest is however in applying the gravity model to international banking. This should be kept in mind when reading the notes.
+
+# 2. From *A Practical Guide to Trade Policy Analysis*
+
+**Chapter 3: Analyzing bilateral trade using the gravity equation**
+
+## 2.1 Analytical tools
+
+### 2.1.1 The gravity equation: theoretical equation
+
+From empirics to theory:
+
+- the stylized fact of trade decreasing with distance first noted by Tinbergen (1962)
+- empirical analysis predated theory: initially gravity equation was thought to be a mere representation of trade, and that the Ricardian and the Heckscher-Ohlin models were unable to provide a theoretical foundation
+- it turned out that a gravity equation arises from a range of different trade theories: Anderson (1979) provided a first attempt, Bergstrand (1985, 1989) derived it from Krugman's model of trade based on monopolistic competition, Deardorff (1998) from a traditional factor-proportions explanation of trade, Eaton and Kortum (2002) from a Ricardian type of model, and Helpman et al. (2008) and Chaney (2008) from a model of international trade in defferentiated goods with firm heterogeneity
+
+The gravity equation in the general, multiplicative formulation:
+
+$X_{ij} = G S_i M_j \phi_{ij}$
+
+where $X_{ij}$ is the monetary value of exports from coutry i to country j, $S_i$ and $M_j$ denote all the exporter- and importer-specific factors (such as the GDP) that make the total of exporter country's willingness to supply and the importer country's willingness to demand. $G$ is a variable independent of the countries in the bilateral pair (such as the level of world liberalization). $\phi_{ij}$ represent the ease of exporter access to the importer's market, i.e. the inverse of bilateral trade costs.
+
+The importance of the "multilateral trade-resistance" term - Anderson and van Wincoop (2003):
+
+- the importance of deriving specifications and variables from economic theory for obtaining the proper inferences from estimations
+- controlling for relative trade costs crucial: the propensity of trade from i to j is determined by trade costs of i w.r.t. j relative to the average trade resistance to imports of j and the resistance to exporters in i
+- that is, two bordering countries bordering also larger trading economies will trade less between each other than they otherwise would (i.e. Belgium and Netherlands trade less with each other than Australia and New Zealand)
+
+Thus the gravity equation takes the following form:
+
+$X_{ij} = \frac{Y_i Y_j}{Y} ( \frac{t_{ij}}{\Pi_i P_j} )^{1 - \sigma}$
+
+where $Y$ denotes world GDP, $Y_i$ and $Y_j$ the GDP of countries i and j respectively, $t_{ij}$ (one plus
+the tariff equivalent of overall trade costs) is the cost in j of importing a good from i, $\sigma$ > 1 is the
+elasticity of substitution and $\Pi_i$ and $P_j$ represent exporter and importer ease of market access or
+country i’s outward and country j’s inward multilateral resistance terms. The multilateral resistance terms are low if a country is remote from world markets (remoteness can mean physical distance or other trade costs). 
+
+Note that all variables in the above formulation can vary across time. 
+
+### 2.1.2 Estimation methods
+
+**The simplistic approach: log-linearization and OLS-estimation**
+
+The standard procedure has long been simply taking natural logs of the equation and estimate the obtained log-linear equations using OLS. 
+
+$ln X_{ijt} = ln G_t + ln S__{ijt} + ln M__{ijt} + ln \phi_{ijt}$
+
+or 
+
+$ln X_{ijt} = a_0 + a_1 ln Y_{it} + a_2 ln Y_{jt} + a_3 ln t_{ijt} + a_4 ln \Pi_{it} + a_5 ln P_{jt} + \varepsilon_{ijt}$
+
+- that is, the logged gravity equation relates the log of bilateral trade to the logs of GDP's, a composite term measuring barriers and incentives to trade between the pair, and terms measuring the barriers to trade between i and j and the rest of the world
+- interpretation easy: the parameters of a log-linear equation are elasticities, so the effects indicate the percentage variation in trade following a 1 per cent increase in any of the controls
+
+Variables that capture trade costs:
+
+- bilateral distance
+- dummies for transport costs: islands, landlocked countries, common borders
+- dummies for information costs: common language, common border, common colonial history
+- dummies for tariff barriers: regional trade agreements
+
+Variables that capture MTR-terms:
+
+- not observable
+- the most common method: use country fixed effects for both importers and exporters
+- other methods: estimating price-raising effects of barriers to trade, constructing a remoteness variable, using regional dummies
+
+**Controlling for the multilateral trade resistance**
+
+*Case A: Interest of the research focuses on the coefficient of a bilateral variable*
+
+Use the **time-varying country dummies for importer and exporter countries** to capture all country-specific characteristics. This will control for a country's overall level of imports/exports:
+
+$ln X_{ijt} = a_0 + a_1 I_{it} + a_2 I_{jt} + a_3 ln t_{ijt} + a_4 I_{t} + u_{ijt}$
+
+where $I_t$ is a time dummy independent of the country pair and $I_{nt}$ are exporter/importer time-varying individual effects (thus they can take into account the fact that MRT can change over time).
+
+Trade costs are usually assumed to take the form:
+
+$t_{ij} = d_{ij}^{\delta_1}*exp(\delta_2 cont_{ij} + \delta_3 lang_{ij} + \delta_4 ccol_{ij} + \delta_5 col_{ij} + \delta_6 landlock_{ij} + \delta_7 RTA_{ij})$
+
+where $d_{ij}$ is bilateral distance and the other controls are dummies for a common border, common language, common colonizer, colonial relation, either country being landlocked or members of a regional trade agreement. All these variables have been found to have a statistically significant effect on bilateral trade.
+
+
+```{r}
+#In STATA:
+
+#tab (year), gen (year_)
+#gen impyear = group(importer year)
+#gen expyear = group(exporter year)
+#tab (impyear), gen (impyear__)
+#tab (expyear), gen (expyear__)
+#xtreg lnexports lndist cont lang ccol col landlock RTA impyear_* expyear_* year_*, robust
+
+#or with random effects - check suitability with the Hausman test:
+
+#xtreg lnexports lndist cont lang ccol col landlock RTA impyear_* expyear_* year_*, re robust
+
+```
+
+NB: The observations usually fitted to the gravity equation exhibit heterogeneity arising from different sources. The error term is highly unlikely to be homoskedastic, and thus **heteroskedasticity robust standard errors** should be used systematically (option [robust] in [reg]). One should often also control for **clustering** by using option [cluster]. (Outliers can pose problems: you can find them with the Hadi test [hadimvo])
+
+Controlling for **country-pair effects**: you can use fixed effects if the independent country-pair variables are time-varying (such as membership of a common RTA). Using fixed effects with time-invariant controls results in perfect collinearity:
+
+```{r}
+#In STATA:
+
+#tab (year), gen (year_)
+#gen impyear = group(importer year)
+#gen expyear = group(exporter year)
+#tab (impyear), gen (impyear__)
+#tab (expyear), gen (expyear__)
+
+#xtreg lnexports RTA impyear_* expyear_* year_*, fe robust
+
+```
+
+
+*Case B: Interest of the research focuses on the country-specific variable*
+
+Using the country fixed effects makes it impossible to estimate the partial effects of country-specific explanatory variables, because they are perfectly collinear with time-varying country fixed effects. This problem arrises e.g. when we want to know what the effect of the size of the economies is on bilateral trade. Then there are two options: use time-invariant country fixed effects or control for MTR using a different method. 
+
+Consider first the use of **time-invariant country fixed effects and additional country-specific controls**, when we are interested in the effect of the economic mass on trade:
+
+$ln X_{ijt} = a_0 + a_1 ln GDP_{it} + a_2 ln GDP_{jt} + a_3 ln t_{ijt} + a_4 I_{i} + a_5 I_{j} + a_6 I_{t} + u_{ijt}$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
