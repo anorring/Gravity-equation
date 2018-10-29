@@ -4,4 +4,4 @@ In my doctoral thesis I analyze the cross-border spillovers from nationally impl
 
 These notes contain information about the gravity equation, it's theoretical foundations, applications and estimation.
 
-See .
+See https://anorring.github.io/Gravity-equation/.
