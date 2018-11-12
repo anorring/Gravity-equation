@@ -41,6 +41,8 @@ The gravity model has been a workhorse model of international trade analysis for
 
 **Chapter 3: Analyzing bilateral trade using the gravity equation**
 
+https://vi.unctad.org/tpa/web/vol1/ch3.html
+
 ## 2.1 Analytical tools
 
 ### 2.1.1 The gravity equation: theoretical equation
