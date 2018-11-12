@@ -246,11 +246,12 @@ div.tocify {
 <p>In my doctoral thesis I analyze the cross-border spillovers from nationally implemented macroprudential policy via international lending with the help of a gravity model applied to international banking asset holdings.</p>
 <p>These notes contain information about the gravity equation, it’s theoretical foundations, applications and estimation.</p>
 <p>The gravity model has been a workhorse model of international trade analysis for decades. My interest is however in applying the gravity model to international banking. This should be kept in mind when reading the notes.</p>
+<p>My GitHub repository for gravity equations can be found <a href="https://github.com/anorring/Gravity-equations">at github.com/anorring/Gravity-equations.</a></p>
 </div>
 <div id="from-a-practical-guide-to-trade-policy-analysis" class="section level1">
 <h1>2. From <em>A Practical Guide to Trade Policy Analysis</em></h1>
 <p><strong>Chapter 3: Analyzing bilateral trade using the gravity equation</strong></p>
-<p><a href="https://vi.unctad.org/tpa/web/vol1/ch3.html" class="uri">https://vi.unctad.org/tpa/web/vol1/ch3.html</a></p>
+<p>The WTO and UNCTAD have co-published an on-line book with a chapter focused on the practical use of gravity models. You can find the chapter <a href="https://vi.unctad.org/tpa/web/vol1/ch3.html">here.</a></p>
 <div id="analytical-tools" class="section level2">
 <h2>2.1 Analytical tools</h2>
 <div id="the-gravity-equation-theoretical-equation" class="section level3">
@@ -277,7 +278,8 @@ div.tocify {
 </div>
 <div id="estimation-methods" class="section level3">
 <h3>2.1.2 Estimation methods</h3>
-<p><strong>The simplistic approach: log-linearization and OLS-estimation</strong></p>
+<div id="the-simplistic-approach-log-linearization-and-ols-estimation" class="section level4">
+<h4>2.1.2.1 The simplistic approach: log-linearization and OLS-estimation</h4>
 <p>The standard procedure has long been simply taking natural logs of the equation and estimate the obtained log-linear equations using OLS. Consider the version of the model that includes MRT:</p>
 <p><span class="math inline">\(ln X_{ijt} = a_0 + a_1 ln Y_{it} + a_2 ln Y_{jt} + a_3 ln t_{ijt} + a_4 ln \Pi_{it} + a_5 ln P_{jt} + \varepsilon_{ijt}\)</span></p>
 <ul>
@@ -297,8 +299,10 @@ div.tocify {
 <li>the most common method: use country fixed effects for both importers and exporters</li>
 <li>other methods: estimating price-raising effects of barriers to trade, constructing a remoteness variable, using regional dummies</li>
 </ul>
-<p><strong>Controlling for the multilateral trade resistance</strong></p>
-<p><em>Case A: Interest of the research focuses on the coefficient of a bilateral variable</em></p>
+</div>
+<div id="controlling-for-the-multilateral-trade-resistance" class="section level4">
+<h4>2.1.2.2 Controlling for the multilateral trade resistance</h4>
+<p><strong>Case A: Interest of the research focuses on the coefficient of a bilateral variable</strong></p>
 <p>Use the <strong>time-varying country dummies for importer and exporter countries</strong> to capture all country-specific characteristics. This will control for a country’s overall level of imports/exports:</p>
 <p><span class="math inline">\(ln X_{ijt} = a_0 + a_1 I_{it} + a_2 I_{jt} + a_3 ln t_{ijt} + a_4 I_{t} + u_{ijt}\)</span></p>
 <p>where <span class="math inline">\(I_t\)</span> is a time dummy independent of the country pair and <span class="math inline">\(I_{nt}\)</span> are exporter/importer time-varying individual effects (thus they can take into account the fact that MRT can change over time).</p>
@@ -328,10 +332,106 @@ div.tocify {
 #tab (expyear), gen (expyear__)
 
 #xtreg lnexports RTA impyear_* expyear_* year_*, fe robust</code></pre>
-<p><em>Case B: Interest of the research focuses on the country-specific variable</em></p>
-<p>Using the country fixed effects makes it impossible to estimate the partial effects of country-specific explanatory variables, because they are perfectly collinear with time-varying country fixed effects. This problem arrises e.g. when we want to know what the effect of the size of the economies is on bilateral trade. Then there are two options: use time-invariant country fixed effects or control for MTR using a different method.</p>
+<p><strong>Case B: Interest of the research focuses on the country-specific variable (relevant for MY THESIS)</strong></p>
+<p>Using the country fixed effects makes it impossible to estimate the partial effects of country-specific explanatory variables, because they are perfectly collinear with time-varying country fixed effects. This problem arrises e.g. when we want to know what the effect of the size of the economies is on bilateral trade, or of the differencies in policies. Then there are two options: use time-invariant country fixed effects or control for MTR using a different method.</p>
 <p>Consider first the use of <strong>time-invariant country fixed effects and additional country-specific controls</strong>, when we are interested in the effect of the economic mass on trade:</p>
 <p><span class="math inline">\(ln X_{ijt} = a_0 + a_1 ln GDP_{it} + a_2 ln GDP_{jt} + a_3 ln t_{ijt} + a_4 I_{i} + a_5 I_{j} + a_6 I_{t} + u_{ijt}\)</span></p>
+<p>This approach can be used, when the sample period is relatively short: the idea is that the MTR’s do not vary very much over a short sample period (see Baldwin and Taglioni, 2006). It is not optimal, because we do know that the MTR’s are not time-invariant as e.g. the geographical composition of a country’s trade varies. The upside is that one can add many control variables and other variables of interest to the basic gravity equation, such as the quality on insitutions or infrastructure.</p>
+<pre class="r"><code>#In STATA:
+
+#gen lnGDPexp= ln (GDPexp)
+#gen lnGDPimp= ln (GDPimp)
+#xtreg lnexports lnGDPexp lnGDPimp lndist importer_* exporter_* year_*, robust</code></pre>
+<p>Another option is to estimate the MTR by <strong>measuring remoteness</strong>. There are multiple ways of doing this:</p>
+<ul>
+<li>a simplistic measure of a country’s average weighted distance from its trading partners (Head, 2003) - problems: not correct theoretically, requirement for including the auto-distance of the country</li>
+<li>a non-linear procedure (Anderson and van Wincoop, 2003)</li>
+<li>estimating a linear approximation (first order Taylor approximation) (Baier and Bergstrand, 2009)</li>
+</ul>
+<pre class="r"><code>#The simple remoteness measure in STATA:
+
+#Compute the share of GDP in world GDP
+#bys exporter year: egen gdptotal = sum(gdp)
+#gen gdpshare = gdp / gdptotal
+
+#Compute the spatially weighted GDP share
+#bys exporter year: egen remoteness = total(dist*gdpshare)
+
+#Compute the spatially weighted GDP share according to Head (2003)
+#bys exporter year: egen Remoteness_head=total(dist/gdpshare)</code></pre>
+<p>Take note of the three typical mistakes in the traditional gravity set-ups:</p>
+<ul>
+<li>omitting multilateral resistance term or “remoteness” -&gt; omitted variable bias due to omitted terms correlated with trade costs</li>
+<li>using net trade - trade flows should be treated separately each way</li>
+<li>inappropriate deflation of trade flows - taken care by time dummies or country effects</li>
+</ul>
+</div>
+</div>
+<div id="advanced-gravity-modelling-issues" class="section level3">
+<h3>2.1.3 Advanced gravity modelling issues</h3>
+<div id="the-issue-of-zero-trade-flows" class="section level4">
+<h4>2.1.3.1 The issue of zero-trade flows</h4>
+<p><strong>Relevant for MY THESIS</strong></p>
+<p>The three traditional approaches to handling zero trade:</p>
+<p><em>1. Truncate the sample by dropping zero observations - the usual strategy of log-linearising the model does this</em></p>
+<p>This is correct if zeros are randomly distributed, i.e. not informative. This however hardly ever the case: zero trade might reflect prohibitively high transportation costs.</p>
+<p><em>2. Add a small constant, say 1 dollar, to the value of trade before taking logs</em></p>
+<p>Incorrect: an ad hoc procedure, with no guarantee of it reflecting the underlying expected values -&gt; inconsistent estimates</p>
+<p><em>3. Estimate the model in levels, i.e. in the multiplicative form</em></p>
+<p>Cannot be estimated with OLS.</p>
+<p><strong>What estimator should be used with zero trade flows?</strong></p>
+<p>Depends on the assumed nature of the zeros: are they missing observations recorded as zeros or the result of firms’ decision not to export?</p>
+<p><em>Reporting errors</em></p>
+<ul>
+<li>Should be omitted or interpolated using the values before and after the observation, when there is a stable trend</li>
+<li>What is an error? Plot the whole time series: a zero in an otherwise positive series is likely to be an error</li>
+<li>NB: the number of reporting errors usually inversely correlated with income per capita</li>
+</ul>
+<p><em>Tobit</em></p>
+<ul>
+<li>Sometimes used, but likely to be inapproapriate</li>
+</ul>
+<p><em>PPML - Pseudo Poisson maximum likelihood method</em></p>
+<ul>
+<li>Applicable to the levels of trade, thus estimating directly the non-linear form of the gravity model and avoiding omitting zero observations</li>
+<li>Santos Silva and Tenreyro (2006) highlight that this method is also robust in the presence of heteroskedasticity, as is common in trade data</li>
+</ul>
+<pre class="r"><code>#In STATA (though why not the ppml command):
+
+#option fe controls for country-pair fixed effects
+
+#xtpoisson exports lndist cont lang ccol col landlock RTA exporter_* importer_*, fe, robust</code></pre>
+<p><em>Selection model à la Heckman</em></p>
+<ul>
+<li>Likely: the probability of finding a positive trade flow between two countries is correlated with unobserved characteristics of that country pair. Then zero trade arrises from the firms’ decisions not to export to a certain market.</li>
+<li>Appropriate procedure: model these decision and correct the estimation on the volume of trade for this selection bias</li>
+<li>Crucial: the results are correct only if we can identify a variable that explains the likelihood that firms export to a certain market, but (given that the trade is positive) not the amount of trade</li>
+</ul>
+</div>
+<div id="zero-trade-and-heterogeneity" class="section level4">
+<h4>2.1.3.2 Zero trade and heterogeneity</h4>
+</div>
+</div>
+<div id="data-sources" class="section level3">
+<h3>2.1.4 Data sources</h3>
+</div>
+</div>
+<div id="applications" class="section level2">
+<h2>2.2 Applications</h2>
+<div id="building-a-database-and-estimating-a-gravity-model" class="section level3">
+<h3>2.2.1 Building a database and estimating a gravity model</h3>
+</div>
+<div id="measuring-the-effect-of-ntbs" class="section level3">
+<h3>2.2.2 Measuring the effect of NTBs</h3>
+</div>
+</div>
+<div id="exercises" class="section level2">
+<h2>2.3 Exercises</h2>
+<div id="estimating-the-impact-of-a-regional-trade-agreement" class="section level3">
+<h3>2.3.1 Estimating the impact of a regional trade agreement</h3>
+</div>
+<div id="calculating-tariff-equivalent" class="section level3">
+<h3>2.3.2 Calculating tariff equivalent</h3>
 </div>
 </div>
 </div>
